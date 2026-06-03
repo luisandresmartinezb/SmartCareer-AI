@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="SmartCareer.API/SmartCareer.API.csproj" />
+  <Project Path="SmartCareer.Application/SmartCareer.Application.csproj" />
+  <Project Path="SmartCareer.Domain/SmartCareer.Domain.csproj" />
+  <Project Path="SmartCareer.Infrastructure/SmartCareer.Infrastructure.csproj" />
+</Solution>
