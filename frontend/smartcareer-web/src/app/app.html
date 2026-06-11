@@ -1,0 +1,133 @@
+<div class="page">
+
+  <header class="hero">
+    <img src="logo.png" class="logo" alt="SmartCareer AI" />
+
+    <div class="hero-text">
+      <h1>SmartCareer AI</h1>
+      <p>Analiza tu CV y descubre cómo mejorar tu perfil profesional.</p>
+    </div>
+  </header>
+
+  <main class="content">
+
+    <section class="card upload-card">
+      <h2>Subir currículum</h2>
+      <p>Selecciona un archivo PDF para realizar un análisis inicial de tu perfil profesional.</p>
+
+      <div class="upload-actions">
+        <label class="file-label">
+          Seleccionar PDF
+          <input type="file"
+                 accept="application/pdf"
+                 (change)="onFileSelected($event)" />
+        </label>
+
+        <div class="selected-file" *ngIf="fileName">
+          📄 {{ fileName }}
+        </div>
+
+        <button [disabled]="!fileName" (click)="analyzeCv()">
+          Analizar CV
+        </button>
+      </div>
+    </section>
+
+    <section class="card result-card" *ngIf="analysisDone">
+
+      <h2>Resultado del análisis</h2>
+
+      <p class="profile-type">{{ profileType }}</p>
+
+      <div class="score">
+        {{ score }} / 100
+      </div>
+
+      <p class="summary">
+        {{ summary }}
+      </p>
+
+      <div class="analysis-grid">
+
+        <div>
+          <h3>Fortalezas detectadas</h3>
+
+          <ul>
+            <li *ngFor="let item of strengths">
+              {{ item }}
+            </li>
+          </ul>
+        </div>
+
+        <div>
+          <h3>Mejoras recomendadas</h3>
+
+          <ul>
+            <li *ngFor="let item of improvements">
+              {{ item }}
+            </li>
+          </ul>
+        </div>
+
+      </div>
+
+      <div class="matches">
+
+        <h3>Compatibilidad con ofertas</h3>
+
+        <div class="match" *ngFor="let match of matches">
+          <span>{{ match.role }}</span>
+          <strong>{{ match.value }}%</strong>
+        </div>
+
+      </div>
+
+      <div class="cv-review">
+
+        <h3>Revisión personalizada del CV</h3>
+
+        <div class="review-item positive">
+          <strong>Punto fuerte</strong>
+          <p>
+            Se mantiene la identidad del candidato, su experiencia profesional y sus datos principales.
+            La mejora se centra en reforzar la presentación del perfil.
+          </p>
+        </div>
+
+        <div class="review-item warning">
+          <strong>Mejora recomendada</strong>
+          <p>
+            Conviene reescribir el perfil profesional con un enfoque más orientado a empresa,
+            destacando tecnologías, proyectos y resultados concretos.
+          </p>
+        </div>
+
+        <div class="review-item danger">
+          <strong>Punto débil detectado</strong>
+          <p>
+            El CV contiene experiencia relevante, pero faltan métricas de impacto, certificaciones oficiales
+            y proyectos desplegados que diferencien el perfil frente a otros candidatos.
+          </p>
+        </div>
+
+        <div class="suggestion-box">
+          <h4>Texto sugerido para mejorar el perfil profesional</h4>
+
+          <p>
+            Desarrollador Full Stack con experiencia en C#, ASP.NET Core, SQL Server,
+            Angular y entornos Cloud. Perfil orientado a la creación de soluciones empresariales,
+            automatización de procesos, mantenimiento de aplicaciones y mejora continua.
+          </p>
+        </div>
+
+      </div>
+
+      <button class="secondary-button" (click)="downloadImprovedCv()">
+        Descargar informe de mejora en PDF
+      </button>
+
+    </section>
+
+  </main>
+
+</div>
