@@ -1,18 +1,43 @@
 <main class="page">
   <section class="hero">
     <div class="hero-content">
+
+      <img src="/logo.png"
+           alt="SmartCareer AI"
+           class="app-logo">
+
       <p class="badge">SmartCareer AI · Plataforma ATS</p>
 
       <h1>Analiza tu CV y mejora tu perfil profesional</h1>
 
       <p class="subtitle">
         Sube tu currículum en PDF y recibe una evaluación profesional con puntuación ATS,
-        fortalezas, puntos débiles, recomendaciones y un informe descargable.
+        fortalezas, puntos débiles, recomendaciones y una versión corregida sugerida del CV.
       </p>
 
-      <div class="actions">
-        <button class="primary-btn">Subir CV</button>
-        <button class="secondary-btn">Ver historial</button>
+      <div class="upload-actions">
+        <label class="file-label">
+          Seleccionar CV PDF
+          <input type="file"
+                 accept="application/pdf"
+                 (change)="onFileSelected($event)" />
+        </label>
+
+        <span class="selected-file" *ngIf="fileName">
+          {{ fileName }}
+        </span>
+
+        <button class="primary-btn"
+                type="button"
+                [disabled]="!fileName || loading"
+                (click)="analyzeCv()">
+          {{ loading ? 'Analizando...' : 'Analizar CV' }}
+        </button>
+
+        <button class="secondary-btn"
+                type="button">
+          Ver historial
+        </button>
       </div>
     </div>
 
@@ -20,21 +45,107 @@
       <h2>Resultado del análisis</h2>
 
       <div class="score">
-        <span>78</span>
+        <span>{{ analysisDone ? score : '--' }}</span>
         <small>/100 ATS</small>
       </div>
 
-      <p class="status">Perfil detectado: Desarrollador Full Stack Junior</p>
+      <p class="status" *ngIf="analysisDone">
+        Perfil detectado: {{ profileType }}
+      </p>
 
-      <div class="mini-list">
-        <p>✔ Buen enfoque técnico</p>
-        <p>✔ Experiencia en backend y frontend</p>
-        <p>⚠ Mejorar palabras clave ATS</p>
+      <p class="status" *ngIf="!analysisDone">
+        Sube un CV para comenzar el análisis profesional.
+      </p>
+
+      <div class="mini-list" *ngIf="analysisDone">
+        <p *ngFor="let item of strengths.slice(0,3)">
+          ✔ {{ item }}
+        </p>
       </div>
     </div>
   </section>
 
-  <section class="features">
+  <section class="card" *ngIf="analysisDone">
+    <h2>Resumen profesional detectado</h2>
+
+    <p class="profile-type">{{ profileType }}</p>
+    <p class="summary">{{ summary }}</p>
+
+    <div class="analysis-grid">
+      <div>
+        <h3>Fortalezas</h3>
+        <ul>
+          <li *ngFor="let item of strengths">{{ item }}</li>
+        </ul>
+      </div>
+
+      <div>
+        <h3>Puntos débiles</h3>
+        <ul>
+          <li *ngFor="let item of weaknesses">{{ item }}</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="analysis-grid">
+      <div>
+        <h3>Recomendaciones</h3>
+        <ul>
+          <li *ngFor="let item of recommendations">{{ item }}</li>
+        </ul>
+      </div>
+
+      <div>
+        <h3>Palabras clave recomendadas</h3>
+        <div class="roadmap">
+          <span *ngFor="let keyword of recommendedKeywords">
+            {{ keyword }}
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <div class="matches">
+      <h3>Compatibilidad con perfiles profesionales</h3>
+
+      <div class="match" *ngFor="let match of matches">
+        <span>{{ match.role }}</span>
+        <strong>{{ match.value }}%</strong>
+      </div>
+    </div>
+
+    <div class="cv-review">
+      <h3>Revisión profesional del CV</h3>
+
+      <div class="review-item"
+           *ngFor="let item of cvReview"
+           [ngClass]="item.type">
+        <strong>{{ item.title }}</strong>
+        <p>{{ item.description }}</p>
+      </div>
+    </div>
+
+    <div class="suggestion-box">
+      <h4>Texto sugerido para mejorar el perfil profesional</h4>
+      <p>{{ suggestedProfessionalProfile }}</p>
+    </div>
+
+    <div class="download-actions">
+      <button class="primary-btn secondary-button"
+              type="button"
+              (click)="downloadCorrectedCv()">
+        Descargar CV corregido
+      </button>
+
+      <button class="secondary-btn secondary-button"
+              type="button"
+              (click)="generateProfessionalReport()">
+        Descargar informe ATS
+      </button>
+    </div>
+  </section>
+
+  <section class="features" *ngIf="!analysisDone">
     <article>
       <h3>Fortalezas</h3>
       <p>Identifica los puntos más sólidos del CV y las competencias mejor posicionadas.</p>
@@ -46,8 +157,8 @@
     </article>
 
     <article>
-      <h3>Informe PDF</h3>
-      <p>Genera un informe profesional de mejora del CV listo para descargar y presentar.</p>
+      <h3>CV corregido</h3>
+      <p>Genera una versión profesional sugerida del currículum adaptada al perfil detectado.</p>
     </article>
   </section>
 </main>
