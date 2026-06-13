@@ -49,6 +49,19 @@
         <small>/100 ATS</small>
       </div>
 
+      <div class="ats-score-container" *ngIf="analysisDone">
+        <div class="score-header">
+          <span>Puntuación ATS</span>
+          <strong>{{ score }}%</strong>
+        </div>
+
+        <div class="progress-bar">
+          <div class="progress-fill"
+               [style.width.%]="score">
+          </div>
+        </div>
+      </div>
+
       <p class="status" *ngIf="analysisDone">
         Perfil detectado: {{ profileType }}
       </p>

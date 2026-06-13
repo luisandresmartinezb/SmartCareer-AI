@@ -55,17 +55,23 @@ export class App {
       return;
     }
 
-    this.loading = false;
-    this.analysisDone = true;
+    this.loading = true;
+    this.analysisDone = false;
 
-    this.loadTechnologyProfile();
-    this.score = 90;
+    setTimeout(() => {
+      this.loadTechnologyProfile();
 
-    this.matches = [
-      { role: 'Backend .NET Developer', value: 93 },
-      { role: 'Full Stack Angular Developer', value: 90 },
-      { role: 'Cloud Developer Junior', value: 80 }
-    ];
+      this.score = 90;
+
+      this.matches = [
+        { role: 'Backend .NET Developer', value: 93 },
+        { role: 'Full Stack Angular Developer', value: 90 },
+        { role: 'Cloud Developer Junior', value: 80 }
+      ];
+
+      this.loading = false;
+      this.analysisDone = true;
+    }, 700);
   }
 
   generateProfessionalReport(): void {
