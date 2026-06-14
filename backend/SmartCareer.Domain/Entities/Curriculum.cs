@@ -13,4 +13,6 @@ public class Curriculum
     public Guid UserId { get; set; }
 
     public User? User { get; set; }
+
+    public ICollection<CvAnalysis> Analyses { get; set; } = new List<CvAnalysis>();
 }

@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SmartCareer.Infrastructure.Data;
 
@@ -11,9 +12,11 @@ using SmartCareer.Infrastructure.Data;
 namespace SmartCareer.Infrastructure.Migrations
 {
     [DbContext(typeof(SmartCareerDbContext))]
-    partial class SmartCareerDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260613141425_AddCvAnalyses")]
+    partial class AddCvAnalyses
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

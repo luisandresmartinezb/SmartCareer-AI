@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { HttpClient } from '@angular/common/http';
 import jsPDF from 'jspdf';
 
 type JobMatch = {
@@ -13,6 +14,17 @@ type CvReviewItem = {
   type: 'positive' | 'warning' | 'danger';
 };
 
+type CvHistoryItem = {
+  id: string;
+  fileName: string;
+  atsScore: number;
+  profileDetected: string;
+  strengths: string;
+  weaknesses: string;
+  recommendations: string;
+  createdAt: string;
+};
+
 @Component({
   selector: 'app-root',
   standalone: true,
@@ -21,6 +33,8 @@ type CvReviewItem = {
   styleUrl: './app.scss'
 })
 export class App {
+  private readonly apiUrl = 'http://localhost:5017/api/CvAnalysis';
+
   fileName = '';
   selectedFile: File | null = null;
 
@@ -40,6 +54,11 @@ export class App {
   matches: JobMatch[] = [];
   cvReview: CvReviewItem[] = [];
 
+  history: CvHistoryItem[] = [];
+  showHistory = false;
+
+  constructor(private http: HttpClient) { }
+
   onFileSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
 
@@ -57,13 +76,29 @@ export class App {
 
     const file = this.fileName.toLowerCase();
 
-    if (file.includes('malo') || file.includes('horrible') || file.includes('incompleto') || file.includes('prueba') || file.includes('test')) {
+    if (
+      file.includes('malo') ||
+      file.includes('horrible') ||
+      file.includes('incompleto') ||
+      file.includes('prueba') ||
+      file.includes('test')
+    ) {
       this.loadWeakProfile();
       this.score = this.calculateScoreByProfile('weak');
-    } else if (file.includes('luis') || file.includes('programador') || file.includes('developer') || file.includes('fullstack') || file.includes('full-stack') || file.includes('cv')) {
+    } else if (
+      file.includes('luis') ||
+      file.includes('programador') ||
+      file.includes('developer') ||
+      file.includes('fullstack') ||
+      file.includes('full-stack') ||
+      file.includes('cv')
+    ) {
       this.loadTechnologyProfile();
       this.score = this.calculateScoreByProfile('technology');
-    } else if (file.includes('admin') || file.includes('administrativo')) {
+    } else if (
+      file.includes('admin') ||
+      file.includes('administrativo')
+    ) {
       this.loadAdministrativeProfile();
       this.score = this.calculateScoreByProfile('administrative');
     } else if (file.includes('marketing')) {
@@ -77,6 +112,22 @@ export class App {
     this.refreshMatchScores();
     this.loading = false;
     this.analysisDone = true;
+
+    this.saveAnalysisToApi();
+  }
+
+  loadHistoryFromApi(): void {
+    this.http.get<CvHistoryItem[]>(`${this.apiUrl}/history`)
+      .subscribe({
+        next: (response) => {
+          this.history = response;
+          this.showHistory = true;
+          console.log('Historial cargado:', response);
+        },
+        error: (error) => {
+          console.error('Error cargando historial:', error);
+        }
+      });
   }
 
   generateProfessionalReport(): void {
@@ -199,6 +250,29 @@ export class App {
     doc.text(trainingLines, 18, y);
 
     doc.save('CV_Corregido_SmartCareerAI.pdf');
+  }
+
+  private saveAnalysisToApi(): void {
+    const request = {
+      fullName: this.candidateName,
+      email: 'demo@smartcareer.ai',
+      fileName: this.fileName,
+      atsScore: this.score,
+      profileDetected: this.profileType,
+      strengths: this.strengths,
+      weaknesses: this.weaknesses,
+      recommendations: this.recommendations
+    };
+
+    this.http.post(this.apiUrl, request)
+      .subscribe({
+        next: (response) => {
+          console.log('Análisis guardado en backend:', response);
+        },
+        error: (error) => {
+          console.error('Error guardando análisis:', error);
+        }
+      });
   }
 
   private calculateScoreByProfile(profile: string): number {
@@ -600,5 +674,6 @@ export class App {
     this.recommendedKeywords = [];
     this.matches = [];
     this.cvReview = [];
+    this.showHistory = false;
   }
 }

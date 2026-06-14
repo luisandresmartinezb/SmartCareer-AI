@@ -19,4 +19,6 @@ public class SmartCareerDbContext : DbContext
     public DbSet<Certification> Certifications => Set<Certification>();
 
     public DbSet<JobOffer> JobOffers => Set<JobOffer>();
+
+    public DbSet<CvAnalysis> CvAnalyses => Set<CvAnalysis>();
 }
