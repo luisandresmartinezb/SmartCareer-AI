@@ -9,7 +9,7 @@
 
 .page {
   min-height: 100vh;
-  padding: 48px;
+  padding: 28px;
   background: radial-gradient(circle at top left, rgba(56, 189, 248, 0.18), transparent 35%), linear-gradient(135deg, #050816 0%, #0f172a 55%, #111827 100%);
   color: #f8fafc;
   font-family: "Segoe UI", Arial, sans-serif;
@@ -17,12 +17,12 @@
 
 .hero {
   max-width: 1180px;
-  margin: 0 auto;
+  min-height: auto;
+  margin: 0 auto 28px;
   display: grid;
-  grid-template-columns: 1.2fr 0.8fr;
+  grid-template-columns: 1fr 360px;
   gap: 36px;
   align-items: center;
-  min-height: 65vh;
 }
 
 .hero-content {
@@ -31,9 +31,9 @@
   align-items: flex-start;
 }
 
-.logo {
-  width: 170px;
-  margin-bottom: 28px;
+.app-logo {
+  width: 300px;
+  margin-bottom: 20px;
   filter: drop-shadow(0 0 18px rgba(56, 189, 248, 0.45));
 }
 
@@ -52,21 +52,21 @@
 h1 {
   max-width: 760px;
   margin: 0;
-  font-size: clamp(42px, 5vw, 68px);
+  font-size: clamp(36px, 4vw, 56px);
   line-height: 1;
   letter-spacing: -2px;
 }
 
 .subtitle {
   max-width: 680px;
-  margin-top: 24px;
+  margin-top: 16px;
   color: #cbd5e1;
-  font-size: 19px;
+  font-size: 17px;
   line-height: 1.7;
 }
 
-.actions,
-.upload-actions {
+.upload-actions,
+.download-actions {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
@@ -125,7 +125,7 @@ button,
 }
 
 .hero-card {
-  padding: 32px;
+  padding: 26px;
   border-radius: 28px;
 }
 
@@ -138,8 +138,8 @@ button,
 
 .card {
   max-width: 1180px;
-  margin: 28px auto;
-  padding: 34px;
+  margin: 24px auto;
+  padding: 28px;
   border-radius: 28px;
 }
 
@@ -200,6 +200,34 @@ button,
   color: #e5e7eb;
   font-size: 18px;
   line-height: 1.6;
+}
+
+.ats-score-container {
+  margin-top: 20px;
+}
+
+.score-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 16px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 999px;
+  overflow: hidden;
+  border: 1px solid rgba(56, 189, 248, 0.3);
+}
+
+.progress-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #38bdf8, #60a5fa, #818cf8);
+  transition: width 1.5s ease;
 }
 
 .analysis-grid {
@@ -302,7 +330,7 @@ ul {
 
 .features {
   max-width: 1180px;
-  margin: 32px auto 0;
+  margin: 24px auto 0;
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 22px;
@@ -322,14 +350,77 @@ ul {
     line-height: 1.6;
   }
 
+.section-title-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 18px;
+  margin-bottom: 22px;
+}
+
+.history-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+
+.history-card {
+  background: rgba(2, 6, 23, 0.78);
+  border: 1px solid rgba(56, 189, 248, 0.28);
+  border-radius: 22px;
+  padding: 22px;
+  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.25);
+}
+
+.history-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 18px;
+  align-items: flex-start;
+  margin-bottom: 16px;
+}
+
+  .history-header h3 {
+    margin: 0 0 8px;
+    color: #f8fafc;
+  }
+
+  .history-header p,
+  .history-date,
+  .history-details p {
+    color: #cbd5e1;
+    margin: 0;
+  }
+
+  .history-header strong {
+    font-size: 34px;
+    color: #38bdf8;
+  }
+
+.history-date {
+  margin-top: 14px;
+  font-size: 14px;
+}
+
+.history-details {
+  margin-top: 16px;
+  display: grid;
+  gap: 10px;
+}
+
+  .history-details strong {
+    color: #7dd3fc;
+  }
+
 @media (max-width: 850px) {
   .page {
-    padding: 28px;
+    padding: 24px;
   }
 
   .hero,
   .features,
-  .analysis-grid {
+  .analysis-grid,
+  .history-grid {
     grid-template-columns: 1fr;
   }
 
@@ -337,8 +428,9 @@ ul {
     min-height: auto;
   }
 
-  .actions,
-  .upload-actions {
+  .upload-actions,
+  .download-actions,
+  .section-title-row {
     flex-direction: column;
     align-items: stretch;
   }
@@ -352,78 +444,11 @@ ul {
     text-align: center;
   }
 
-  .logo {
+  .app-logo {
     width: 145px;
   }
 
   h1 {
     font-size: 42px;
   }
-}
-
-.page {
-  padding: 28px;
-}
-
-.hero {
-  max-width: 1180px;
-  min-height: auto;
-  margin-bottom: 28px;
-  grid-template-columns: 1fr 360px;
-}
-
-.app-logo {
-  width: 300px;
-  margin-bottom: 20px;
-}
-
-h1 {
-  font-size: clamp(36px, 4vw, 56px);
-}
-
-.subtitle {
-  font-size: 17px;
-  margin-top: 16px;
-}
-
-.card {
-  max-width: 1180px;
-  margin: 24px auto;
-  padding: 28px;
-}
-
-.hero-card {
-  padding: 26px;
-}
-
-.features {
-  margin-top: 24px;
-}
-
-.ats-score-container {
-  margin-top: 20px;
-}
-
-.score-header {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 10px;
-  font-size: 18px;
-  font-weight: 600;
-}
-
-.progress-bar {
-  width: 100%;
-  height: 16px;
-  background: rgba(255,255,255,0.1);
-  border-radius: 999px;
-  overflow: hidden;
-  border: 1px solid rgba(56,189,248,0.3);
-}
-
-.progress-fill {
-  height: 100%;
-  border-radius: 999px;
-  background: linear-gradient( 90deg, #38bdf8, #60a5fa, #818cf8 );
-  transition: width 1.5s ease;
 }
