@@ -1,6 +1,6 @@
-# 🚀 SmartCareer AI
+# SmartCareer AI
 
-## 📌 Descripción
+## Descripción
 
 **SmartCareer AI** es una plataforma inteligente desarrollada para ayudar a los candidatos a mejorar sus oportunidades laborales mediante el análisis automático de currículums.
 
