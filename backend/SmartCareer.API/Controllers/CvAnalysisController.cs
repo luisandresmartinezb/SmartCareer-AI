@@ -9,107 +9,131 @@ namespace SmartCareer.API.Controllers;
 [Route("api/[controller]")]
 public class CvAnalysisController : ControllerBase
 {
-	private readonly SmartCareerDbContext _context;
+    private readonly SmartCareerDbContext _context;
 
-	public CvAnalysisController(SmartCareerDbContext context)
-	{
-		_context = context;
-	}
+    public CvAnalysisController(SmartCareerDbContext context)
+    {
+        _context = context;
+    }
 
-	[HttpGet("history")]
-	public async Task<IActionResult> GetHistory()
-	{
-		var analyses = await _context.CvAnalyses
-			.Include(a => a.Curriculum)
-			.OrderByDescending(a => a.CreatedAt)
-			.Select(a => new
-			{
-				a.Id,
-				FileName = a.Curriculum != null ? a.Curriculum.FileName : "",
-				a.AtsScore,
-				a.ProfileDetected,
-				a.Strengths,
-				a.Weaknesses,
-				a.Recommendations,
-				a.CreatedAt
-			})
-			.ToListAsync();
+    [HttpGet("history")]
+    public async Task<IActionResult> GetHistory()
+    {
+        var analyses = await _context.CvAnalyses
+            .Include(a => a.Curriculum)
+            .OrderByDescending(a => a.CreatedAt)
+            .Select(a => new
+            {
+                a.Id,
+                FileName = a.Curriculum != null ? a.Curriculum.FileName : "",
+                a.AtsScore,
+                a.ProfileDetected,
+                Strengths = a.Strengths.Split(" | ", StringSplitOptions.RemoveEmptyEntries),
+                Weaknesses = a.Weaknesses.Split(" | ", StringSplitOptions.RemoveEmptyEntries),
+                Recommendations = a.Recommendations.Split(" | ", StringSplitOptions.RemoveEmptyEntries),
+                a.CreatedAt
+            })
+            .ToListAsync();
 
-		return Ok(analyses);
-	}
+        return Ok(analyses);
+    }
 
-	[HttpPost]
-	public async Task<IActionResult> Create(CreateCvAnalysisRequest request)
-	{
-		var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == request.Email);
+    [HttpPost]
+    public async Task<IActionResult> Create(CreateCvAnalysisRequest request)
+    {
+        if (string.IsNullOrWhiteSpace(request.FullName))
+        {
+            return BadRequest("El nombre completo es obligatorio.");
+        }
 
-		if (user == null)
-		{
-			user = new User
-			{
-				Id = Guid.NewGuid(),
-				FullName = request.FullName,
-				Email = request.Email,
-				PasswordHash = "demo-password",
-				CreatedAt = DateTime.UtcNow
-			};
+        if (string.IsNullOrWhiteSpace(request.Email))
+        {
+            return BadRequest("El email es obligatorio.");
+        }
 
-			_context.Users.Add(user);
-		}
+        if (string.IsNullOrWhiteSpace(request.FileName))
+        {
+            return BadRequest("El nombre del archivo es obligatorio.");
+        }
 
-		var curriculum = new Curriculum
-		{
-			Id = Guid.NewGuid(),
-			FileName = request.FileName,
-			FilePath = $"uploads/{request.FileName}",
-			UploadedAt = DateTime.UtcNow,
-			UserId = user.Id
-		};
+        if (request.AtsScore < 0 || request.AtsScore > 100)
+        {
+            return BadRequest("La puntuación ATS debe estar entre 0 y 100.");
+        }
 
-		_context.Curriculums.Add(curriculum);
+        var user = await _context.Users
+            .FirstOrDefaultAsync(u => u.Email == request.Email);
 
-		var analysis = new CvAnalysis
-		{
-			Id = Guid.NewGuid(),
-			CurriculumId = curriculum.Id,
-			AtsScore = request.AtsScore,
-			ProfileDetected = request.ProfileDetected,
-			Strengths = string.Join(" | ", request.Strengths),
-			Weaknesses = string.Join(" | ", request.Weaknesses),
-			Recommendations = string.Join(" | ", request.Recommendations),
-			CreatedAt = DateTime.UtcNow
-		};
+        if (user == null)
+        {
+            user = new User
+            {
+                Id = Guid.NewGuid(),
+                FullName = request.FullName,
+                Email = request.Email,
+                PasswordHash = "demo-password",
+                CreatedAt = DateTime.UtcNow
+            };
 
-		_context.CvAnalyses.Add(analysis);
+            _context.Users.Add(user);
+        }
 
-		await _context.SaveChangesAsync();
+        var curriculum = new Curriculum
+        {
+            Id = Guid.NewGuid(),
+            FileName = request.FileName,
+            FilePath = $"uploads/{request.FileName}",
+            UploadedAt = DateTime.UtcNow,
+            UserId = user.Id
+        };
 
-		return Ok(new
-		{
-			analysis.Id,
-			curriculum.FileName,
-			analysis.AtsScore,
-			analysis.ProfileDetected,
-			analysis.CreatedAt
-		});
-	}
+        _context.Curriculums.Add(curriculum);
+
+        var analysis = new CvAnalysis
+        {
+            Id = Guid.NewGuid(),
+            CurriculumId = curriculum.Id,
+            AtsScore = request.AtsScore,
+            ProfileDetected = request.ProfileDetected,
+            Strengths = string.Join(" | ", request.Strengths),
+            Weaknesses = string.Join(" | ", request.Weaknesses),
+            Recommendations = string.Join(" | ", request.Recommendations),
+            CreatedAt = DateTime.UtcNow
+        };
+
+        _context.CvAnalyses.Add(analysis);
+
+        await _context.SaveChangesAsync();
+
+        return Ok(new
+        {
+            analysis.Id,
+            curriculum.FileName,
+            analysis.AtsScore,
+            analysis.ProfileDetected,
+            Strengths = request.Strengths,
+            Weaknesses = request.Weaknesses,
+            Recommendations = request.Recommendations,
+            analysis.CreatedAt
+        });
+    }
 }
 
 public class CreateCvAnalysisRequest
 {
-	public string FullName { get; set; } = string.Empty;
+    public string FullName { get; set; } = string.Empty;
 
-	public string Email { get; set; } = string.Empty;
+    public string Email { get; set; } = string.Empty;
 
-	public string FileName { get; set; } = string.Empty;
+    public string FileName { get; set; } = string.Empty;
 
-	public int AtsScore { get; set; }
+    public int AtsScore { get; set; }
 
-	public string ProfileDetected { get; set; } = string.Empty;
+    public string ProfileDetected { get; set; } = string.Empty;
 
-	public List<string> Strengths { get; set; } = new();
+    public List<string> Strengths { get; set; } = new();
 
-	public List<string> Weaknesses { get; set; } = new();
+    public List<string> Weaknesses { get; set; } = new();
 
-	public List<string> Recommendations { get; set; } = new();
+    public List<string> Recommendations { get; set; } = new();
 }
