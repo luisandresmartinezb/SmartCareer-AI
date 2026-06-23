@@ -1,233 +1,244 @@
-<main class="page">
-  <section class="hero">
+<main class="app-shell">
+  <section class="hero-section">
     <div class="hero-content">
+      <div class="brand">
+        <img src="logo.png" alt="SmartCareer AI" class="brand-logo" />
+      </div>
 
-      <img src="/logo.png"
-           alt="SmartCareer AI"
-           class="app-logo">
+      <div class="badge">SmartCareer AI · Plataforma ATS</div>
 
-      <p class="badge">SmartCareer AI · Plataforma ATS</p>
+      <h1>Prepara tu candidatura con IA</h1>
 
-      <h1>Analiza tu CV y mejora tu perfil profesional</h1>
-
-      <p class="subtitle">
-        Sube tu currículum en PDF y recibe una evaluación profesional con puntuación ATS,
-        fortalezas, puntos débiles, recomendaciones y una versión corregida sugerida del CV.
+      <p class="hero-description">
+        Selecciona una oferta, sube tu CV y genera una candidatura completa:
+        análisis ATS, CV adaptado, carta de presentación y simulación de aplicación.
       </p>
 
-      <div class="upload-actions">
-        <label class="file-label">
+      <section class="offers-section">
+        <h2>Ofertas disponibles</h2>
+
+        <div class="offers-grid">
+          <button type="button"
+                  class="offer-card"
+                  *ngFor="let offer of jobOffers"
+                  [class.selected]="selectedOffer?.id === offer.id"
+                  (click)="selectOffer(offer)">
+            <span class="offer-level">{{ offer.level }}</span>
+            <strong>{{ offer.title }}</strong>
+            <small>{{ offer.company }} · {{ offer.location }} · {{ offer.modality }}</small>
+            <p>{{ offer.description }}</p>
+          </button>
+        </div>
+      </section>
+
+      <div class="selected-offer" *ngIf="selectedOffer">
+        <strong>Oferta seleccionada:</strong>
+        {{ selectedOffer.title }} - {{ selectedOffer.company }}
+      </div>
+
+      <div class="actions">
+        <label class="upload-button">
           Seleccionar CV PDF
           <input type="file"
                  accept="application/pdf"
+                 hidden
                  (change)="onFileSelected($event)" />
         </label>
 
-        <span class="selected-file" *ngIf="fileName">
+        <div class="file-pill" *ngIf="fileName">
           {{ fileName }}
-        </span>
+        </div>
 
-        <button class="primary-btn"
-                type="button"
-                [disabled]="!fileName || loading"
+        <button type="button"
+                class="primary-button"
+                [disabled]="!selectedFile || !selectedOffer || loading"
                 (click)="analyzeCv()">
-          {{ loading ? 'Analizando...' : 'Analizar CV' }}
+          <span *ngIf="!loading">Analizar candidatura</span>
+          <span *ngIf="loading">Analizando...</span>
         </button>
 
-        <button class="secondary-btn"
-                type="button"
+        <button type="button"
+                class="secondary-button"
                 (click)="loadHistoryFromApi()">
           Ver historial
         </button>
-
-        <button class="secondary-btn"
-                type="button"
-                *ngIf="showHistory"
-                (click)="showHistory = false">
-          Ocultar historial
-        </button>
       </div>
     </div>
 
-    <div class="hero-card">
-      <h2>Resultado del análisis</h2>
+    <aside class="result-card">
+      <h2>Resultado</h2>
 
-      <div class="score">
-        <span>{{ analysisDone ? score : '--' }}</span>
-        <small>/100 ATS</small>
-      </div>
-
-      <div class="ats-score-container" *ngIf="analysisDone">
-        <div class="score-header">
-          <span>Puntuación ATS</span>
-          <strong>{{ score }}%</strong>
+      <ng-container *ngIf="!analysisDone && !loading">
+        <div class="empty-score">
+          <span></span>
+          <span></span>
         </div>
 
-        <div class="progress-bar">
-          <div class="progress-fill"
-               [style.width.%]="score">
-          </div>
-        </div>
-      </div>
-
-      <p class="status" *ngIf="analysisDone">
-        Perfil detectado: {{ profileType }}
-      </p>
-
-      <p class="status" *ngIf="!analysisDone">
-        Sube un CV para comenzar el análisis profesional.
-      </p>
-
-      <div class="mini-list" *ngIf="analysisDone">
-        <p *ngFor="let item of strengths.slice(0,3)">
-          ✔ {{ item }}
+        <p class="empty-text">
+          Selecciona una oferta y sube tu CV para preparar la candidatura.
         </p>
-      </div>
-    </div>
+      </ng-container>
+
+      <ng-container *ngIf="loading">
+        <div class="loader"></div>
+        <p class="empty-text">Analizando compatibilidad con la oferta...</p>
+      </ng-container>
+
+      <ng-container *ngIf="analysisDone && !loading">
+        <div class="score-row">
+          <strong>{{ score }}</strong>
+          <span>/100 ATS</span>
+        </div>
+
+        <div class="progress-wrapper">
+          <div class="progress-bar" [style.width.%]="score"></div>
+        </div>
+
+        <p class="profile-type">{{ profileType }}</p>
+        <p class="summary">{{ summary }}</p>
+
+        <div class="download-actions">
+          <button type="button" class="primary-button small" (click)="downloadCorrectedCv()">
+            Descargar CV adaptado
+          </button>
+
+          <button type="button" class="secondary-button small" (click)="downloadCoverLetter()">
+            Descargar carta
+          </button>
+
+          <button type="button" class="secondary-button small" (click)="generateProfessionalReport()">
+            Informe ATS
+          </button>
+
+          <button type="button" class="success-button small" (click)="simulateApplication()">
+            Simular aplicación
+          </button>
+        </div>
+
+        <div class="application-status" *ngIf="applicationSimulated">
+          {{ simulateApplicationStatus() }}
+        </div>
+      </ng-container>
+    </aside>
   </section>
 
-  <section class="card" *ngIf="showHistory">
-    <div class="section-title-row">
-      <div>
-        <p class="badge">Historial conectado a SQL Server</p>
-        <h2>Historial de análisis</h2>
-      </div>
+  <section class="features-grid" *ngIf="!analysisDone">
+    <article class="feature-card">
+      <h3>Oferta objetivo</h3>
+      <p>La candidatura se adapta a un puesto concreto.</p>
+    </article>
 
-      <button class="secondary-btn"
-              type="button"
-              (click)="showHistory = false">
-        Cerrar
-      </button>
-    </div>
+    <article class="feature-card">
+      <h3>CV + carta</h3>
+      <p>Genera documentos listos para presentar.</p>
+    </article>
 
-    <p *ngIf="history.length === 0">
-      Todavía no hay análisis guardados.
-    </p>
-
-    <div class="history-grid" *ngIf="history.length > 0">
-      <article class="history-card" *ngFor="let item of history">
-        <div class="history-header">
-          <div>
-            <h3>{{ item.fileName }}</h3>
-            <p>{{ item.profileDetected }}</p>
-          </div>
-
-          <strong>{{ item.atsScore }}%</strong>
-        </div>
-
-        <div class="progress-bar">
-          <div class="progress-fill"
-               [style.width.%]="item.atsScore">
-          </div>
-        </div>
-
-        <p class="history-date">
-          Fecha análisis: {{ item.createdAt | date:'dd/MM/yyyy HH:mm' }}
-        </p>
-
-        <div class="history-details">
-          <p><strong>Fortalezas:</strong> {{ item.strengths }}</p>
-          <p><strong>Puntos débiles:</strong> {{ item.weaknesses }}</p>
-          <p><strong>Recomendaciones:</strong> {{ item.recommendations }}</p>
-        </div>
-      </article>
-    </div>
+    <article class="feature-card">
+      <h3>Simulación</h3>
+      <p>Representa el flujo completo de una candidatura real.</p>
+    </article>
   </section>
 
-  <section class="card" *ngIf="analysisDone">
-    <h2>Resumen profesional detectado</h2>
+  <section class="analysis-dashboard" *ngIf="analysisDone && !loading">
+    <article class="panel full-panel">
+      <h2>Candidatura preparada</h2>
+      <p>
+        SmartCareer AI ha generado una propuesta profesional basada en tu experiencia
+        y en la oferta seleccionada.
+      </p>
 
-    <p class="profile-type">{{ profileType }}</p>
-    <p class="summary">{{ summary }}</p>
-
-    <div class="analysis-grid">
-      <div>
-        <h3>Fortalezas</h3>
-        <ul>
-          <li *ngFor="let item of strengths">{{ item }}</li>
-        </ul>
+      <div class="corrected-profile">
+        <h3>Perfil profesional optimizado</h3>
+        <p>{{ suggestedProfessionalProfile }}</p>
       </div>
+    </article>
 
-      <div>
-        <h3>Puntos débiles</h3>
-        <ul>
-          <li *ngFor="let item of weaknesses">{{ item }}</li>
-        </ul>
+    <article class="panel">
+      <h2>Fortalezas detectadas</h2>
+      <ul>
+        <li *ngFor="let item of strengths">{{ item }}</li>
+      </ul>
+    </article>
+
+    <article class="panel">
+      <h2>Puntos débiles</h2>
+      <ul>
+        <li *ngFor="let item of weaknesses">{{ item }}</li>
+      </ul>
+    </article>
+
+    <article class="panel">
+      <h2>Recomendaciones</h2>
+      <ul>
+        <li *ngFor="let item of recommendations">{{ item }}</li>
+      </ul>
+    </article>
+
+    <article class="panel">
+      <h2>Palabras clave ATS</h2>
+      <div class="keywords">
+        <span *ngFor="let keyword of recommendedKeywords">{{ keyword }}</span>
       </div>
-    </div>
+    </article>
 
-    <div class="analysis-grid">
-      <div>
-        <h3>Recomendaciones</h3>
-        <ul>
-          <li *ngFor="let item of recommendations">{{ item }}</li>
-        </ul>
-      </div>
+    <article class="panel">
+      <h2>Compatibilidad con ofertas</h2>
 
-      <div>
-        <h3>Palabras clave recomendadas</h3>
-        <div class="roadmap">
-          <span *ngFor="let keyword of recommendedKeywords">
-            {{ keyword }}
-          </span>
+      <div class="match-item" *ngFor="let match of matches">
+        <div class="match-header">
+          <span>{{ match.role }}</span>
+          <strong>{{ match.value }}%</strong>
+        </div>
+
+        <div class="mini-progress">
+          <div [style.width.%]="match.value"></div>
         </div>
       </div>
-    </div>
+    </article>
 
-    <div class="matches">
-      <h3>Compatibilidad con perfiles profesionales</h3>
+    <article class="panel">
+      <h2>Carta de presentación</h2>
+      <p class="cover-preview">{{ coverLetterText }}</p>
+    </article>
 
-      <div class="match" *ngFor="let match of matches">
-        <span>{{ match.role }}</span>
-        <strong>{{ match.value }}%</strong>
-      </div>
-    </div>
-
-    <div class="cv-review">
-      <h3>Revisión profesional del CV</h3>
+    <article class="panel">
+      <h2>Review del CV</h2>
 
       <div class="review-item"
-           *ngFor="let item of cvReview"
-           [ngClass]="item.type">
-        <strong>{{ item.title }}</strong>
-        <p>{{ item.description }}</p>
+           *ngFor="let review of cvReview"
+           [class.positive]="review.type === 'positive'"
+           [class.warning]="review.type === 'warning'"
+           [class.danger]="review.type === 'danger'">
+        <h3>{{ review.title }}</h3>
+        <p>{{ review.description }}</p>
       </div>
-    </div>
-
-    <div class="suggestion-box">
-      <h4>Texto sugerido para mejorar el perfil profesional</h4>
-      <p>{{ suggestedProfessionalProfile }}</p>
-    </div>
-
-    <div class="download-actions">
-      <button class="primary-btn secondary-button"
-              type="button"
-              (click)="downloadCorrectedCv()">
-        Descargar CV corregido
-      </button>
-
-      <button class="secondary-btn secondary-button"
-              type="button"
-              (click)="generateProfessionalReport()">
-        Descargar informe ATS
-      </button>
-    </div>
+    </article>
   </section>
 
-  <section class="features" *ngIf="!analysisDone && !showHistory">
-    <article>
-      <h3>Fortalezas</h3>
-      <p>Identifica los puntos más sólidos del CV y las competencias mejor posicionadas.</p>
-    </article>
+  <section class="history-section" *ngIf="showHistory">
+    <div class="history-header">
+      <h2>Historial de análisis</h2>
+      <p>Últimos CV analizados guardados en el backend.</p>
+    </div>
 
-    <article>
-      <h3>Recomendaciones</h3>
-      <p>Recibe sugerencias concretas para mejorar el perfil profesional y la presentación.</p>
-    </article>
+    <div class="history-empty" *ngIf="history.length === 0">
+      No hay análisis guardados todavía.
+    </div>
 
-    <article>
-      <h3>CV corregido</h3>
-      <p>Genera una versión profesional sugerida del currículum adaptada al perfil detectado.</p>
-    </article>
+    <div class="history-table" *ngIf="history.length > 0">
+      <div class="history-row header">
+        <span>Archivo</span>
+        <span>Perfil</span>
+        <span>Puntuación</span>
+        <span>Fecha</span>
+      </div>
+
+      <div class="history-row" *ngFor="let item of history">
+        <span>{{ item.fileName }}</span>
+        <span>{{ item.profileDetected }}</span>
+        <span>{{ item.atsScore }}/100</span>
+        <span>{{ item.createdAt }}</span>
+      </div>
+    </div>
   </section>
 </main>
